@@ -68,6 +68,14 @@ app.get('/auth/google/callback',
     }
 );
 
+// Logout route
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        req.session.destroy();
+        res.send('Logged out');
+    });
+});
+
 // Protected route
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
