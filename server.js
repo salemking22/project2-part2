@@ -28,7 +28,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL // ✅ Updated here
+    callbackURL: process.env.GOOGLE_CALLBACK_URL
 }, (accessToken, refreshToken, profile, done) => {
     return done(null, profile);
 }));
@@ -64,7 +64,12 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
-        res.redirect('/protected');
+        try {
+            res.redirect('/protected');
+        } catch (err) {
+            console.error('OAuth callback error:', err);
+            res.status(500).send('OAuth callback failed');
+        }
     }
 );
 
@@ -85,7 +90,8 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/protected', ensureAuthenticated, (req, res) => {
-    res.send(`Welcome, ${req.user.displayName}`);
+    const name = req.user?.displayName || 'User';
+    res.send(`Welcome, ${name}`);
 });
 
 // Swagger setup
