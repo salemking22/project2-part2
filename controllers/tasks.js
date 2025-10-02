@@ -21,8 +21,21 @@ const getTaskById = async (req, res) => {
 
 const createTask = async (req, res) => {
     try {
-        const { title } = req.body;
-        if (!title) return res.status(400).json({ message: 'Title is required' });
+        const requiredFields = [
+            "title",
+            "description",
+            "dueDate",
+            "priority",
+            "status",
+            "assignedTo",
+            "category"
+        ];
+
+        for (const field of requiredFields) {
+            if (!req.body[field]) {
+                return res.status(400).json({ message: `${field} is required` });
+            }
+        }
 
         const newTask = new Task(req.body);
         const savedTask = await newTask.save();
